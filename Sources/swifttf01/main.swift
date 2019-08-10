@@ -2,6 +2,16 @@ import TensorFlow
 
 import Python
 
+
+print("\(softmax(Tensor<Float>([ 17.457628,  11.688464, -18.308298])))")
+print("\(softmax(Tensor<Float>([ 1,  1,  1])))")
+print("\(softmax(Tensor<Float>([ 1,  0,  0])))")
+print("\(softmax(Tensor<Float>([ 2,  10,  -100])))")
+print("\(softmax(Tensor<Float>([ 1,  -10])))")
+
+extension String: Error {}
+// throw "quit"
+
 let plt = Python.import("matplotlib.pyplot")
 
 print(plt)
@@ -70,11 +80,12 @@ let hiddenSize: Int = 10
 struct IrisModel: Layer {
     var layer1 = Dense<Float>(inputSize: 4, outputSize: hiddenSize, activation: relu)
     var layer2 = Dense<Float>(inputSize: hiddenSize, outputSize: hiddenSize, activation: relu)
-    var layer3 = Dense<Float>(inputSize: hiddenSize, outputSize: 3)
+    var layer3 = Dense<Float>(inputSize: hiddenSize, outputSize: hiddenSize, activation: relu)
+    var layer4 = Dense<Float>(inputSize: hiddenSize, outputSize: 3)
 
     @differentiable
     func callAsFunction(_ input: Tensor<Float>) -> Tensor<Float> {
-        return input.sequenced(through: layer1, layer2, layer3)
+        return input.sequenced(through: layer1, layer2, layer3, layer4)
     }
 }
 
@@ -124,7 +135,10 @@ for epoch in 1...epochCount {
             let logits = model(batch.features)
             return softmaxCrossEntropy(logits: logits, labels: batch.labels)
         }
+
+        // print("Before optimize: \(model.allDifferentiableVariables)")
         optimizer.update(&model.allDifferentiableVariables, along: grad)
+        // print("After optimize: \(model.allDifferentiableVariables)")
 
         let logits = model(batch.features)
         epochAccuracy += accuracy(predictions: logits.argmax(squeezingAxis: 1), truths: batch.labels)
@@ -182,6 +196,7 @@ let unlabeledDatasetPredictions = model(unlabeledDataset)
 for i in 0..<unlabeledDatasetPredictions.shape[0] {
     let logits = unlabeledDatasetPredictions[i]
     let classIdx = logits.argmax().scalar!
-    print("Example \(i) prediction: \(classNames[Int(classIdx)]) (\(softmax(logits)))")
+    print("Example \(i) prediction: \(classNames[Int(classIdx)]) (\(softmax(logits))) (\(logits))")
 }
 
+print("\(softmax(Tensor<Float>([ 17.457628,  11.688464, -18.308298]))) is [    0.9968874,  0.0031126477, 2.9221443e-16]")
