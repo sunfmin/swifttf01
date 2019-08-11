@@ -3,13 +3,40 @@ import TensorFlow
 import Python
 
 
-print("\(softmax(Tensor<Float>([ 17.457628,  11.688464, -18.308298])))")
-print("\(softmax(Tensor<Float>([ 1,  1,  1])))")
-print("\(softmax(Tensor<Float>([ 1,  0,  0])))")
-print("\(softmax(Tensor<Float>([ 2,  10,  -100])))")
-print("\(softmax(Tensor<Float>([ 1,  -10])))")
 
-extension String: Error {}
+
+//runGen()
+//
+//exit(0)
+
+struct Model: Differentiable {
+    var w: Float
+    var b: Float
+
+    func run(to input: Float) -> Float {
+        return w * input + b
+    }
+}
+
+let m = Model(w: 500, b: 10)
+let (model1, input1) = m.gradient(at: -4.9) { model, input in
+    model.run(to: input)
+}
+print(model1)
+print(input1)
+
+exit(0)
+
+
+print("\(softmax(Tensor<Float>([17.457628, 11.688464, -18.308298])))")
+print("\(softmax(Tensor<Float>([1, 1, 1])))")
+print("\(softmax(Tensor<Float>([1, 0, 0])))")
+print("\(softmax(Tensor<Float>([2, 10, -100])))")
+print("\(softmax(Tensor<Float>([1, -10])))")
+
+extension String: Error {
+}
+
 // throw "quit"
 
 let plt = Python.import("matplotlib.pyplot")
@@ -57,8 +84,8 @@ struct IrisBatch {
 
 
 let trainDataset: Dataset<IrisBatch> = Dataset(
-    contentsOfCSVFile: "iris_training.csv", hasHeader: true,
-    featureColumns: [0, 1, 2, 3], labelColumns: [4]
+        contentsOfCSVFile: "iris_training.csv", hasHeader: true,
+        featureColumns: [0, 1, 2, 3], labelColumns: [4]
 ).batched(batchSize)
 
 let firstTrainExamples = trainDataset.first!
@@ -66,17 +93,31 @@ let firstTrainFeatures = firstTrainExamples.features
 let firstTrainLabels = firstTrainExamples.labels
 print("First batch of features: \(firstTrainFeatures)")
 print("First batch of labels: \(firstTrainLabels)")
+print("firstTrainLabels.array.scalars \(firstTrainLabels.array.scalars)")
 
 let firstTrainFeaturesTransposed = firstTrainFeatures.transposed()
+print("firstTrainFeaturesTransposed \(firstTrainFeaturesTransposed)")
+
+
 let petalLengths = firstTrainFeaturesTransposed[2].scalars
 let sepalLengths = firstTrainFeaturesTransposed[0].scalars
 
-// plt.scatter(petalLengths, sepalLengths, c: firstTrainLabels.array.scalars)
-// plt.xlabel("Petal length")
-// plt.ylabel("Sepal length")
-// plt.show()
+print("petalLengths \(petalLengths)")
+print("sepalLengths \(sepalLengths)")
+print("firstTrainFeaturesTransposed[0] \(firstTrainFeaturesTransposed[0])")
+print("firstTrainFeaturesTransposed[0].array \(firstTrainFeaturesTransposed[0].array)")
+
+plt.scatter(petalLengths, sepalLengths, c: firstTrainLabels.array.scalars)
+plt.xlabel("Petal length")
+plt.ylabel("Sepal length")
+
+exit(0)
+
+plt.show()
+
 
 let hiddenSize: Int = 10
+
 struct IrisModel: Layer {
     var layer1 = Dense<Float>(inputSize: 4, outputSize: hiddenSize, activation: relu)
     var layer2 = Dense<Float>(inputSize: hiddenSize, outputSize: hiddenSize, activation: relu)
@@ -115,7 +156,6 @@ optimizer.update(&model.allDifferentiableVariables, along: grads)
 let logitsAfterOneStep = model(firstTrainFeatures)
 let lossAfterOneStep = softmaxCrossEntropy(logits: logitsAfterOneStep, labels: firstTrainLabels)
 print("Next loss: \(lossAfterOneStep)")
-
 
 
 let epochCount = 500
@@ -168,8 +208,8 @@ lossAxes.plot(trainLossResults)
 // plt.show()
 
 let testDataset: Dataset<IrisBatch> = Dataset(
-    contentsOfCSVFile: "iris_test.csv", hasHeader: true,
-    featureColumns: [0, 1, 2, 3], labelColumns: [4]
+        contentsOfCSVFile: "iris_test.csv", hasHeader: true,
+        featureColumns: [0, 1, 2, 3], labelColumns: [4]
 ).batched(batchSize)
 
 for testBatch in testDataset {
@@ -187,9 +227,9 @@ print(firstTestBatch.labels)
 
 
 let unlabeledDataset: Tensor<Float> =
-    [[5.1, 3.3, 1.7, 0.5],
-     [5.9, 3.0, 4.2, 1.5],
-     [6.9, 3.1, 5.4, 2.1]]
+        [[5.1, 3.3, 1.7, 0.5],
+         [5.9, 3.0, 4.2, 1.5],
+         [6.9, 3.1, 5.4, 2.1]]
 
 let unlabeledDatasetPredictions = model(unlabeledDataset)
 
@@ -199,4 +239,4 @@ for i in 0..<unlabeledDatasetPredictions.shape[0] {
     print("Example \(i) prediction: \(classNames[Int(classIdx)]) (\(softmax(logits))) (\(logits))")
 }
 
-print("\(softmax(Tensor<Float>([ 17.457628,  11.688464, -18.308298]))) is [    0.9968874,  0.0031126477, 2.9221443e-16]")
+print("\(softmax(Tensor<Float>([17.457628, 11.688464, -18.308298]))) is [    0.9968874,  0.0031126477, 2.9221443e-16]")
