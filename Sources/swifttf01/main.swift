@@ -2,30 +2,33 @@ import TensorFlow
 
 import Python
 
+//import Glibc
 
+// gradientRun()
 
+runVerySimpleModel()
 
-//runGen()
-//
-//exit(0)
+exit(0)
+
 
 struct Model: Differentiable {
     var w: Float
     var b: Float
+    var b2: Float
 
     func run(to input: Float) -> Float {
-        return w * input + b
+        return w * input + b + b2
     }
 }
 
-let m = Model(w: 500, b: 10)
+let m = Model(w: 500, b: 10, b2: 20)
 let (model1, input1) = m.gradient(at: -4.9) { model, input in
     model.run(to: input)
 }
 print(model1)
 print(input1)
 
-exit(0)
+// exit(0)
 
 
 print("\(softmax(Tensor<Float>([17.457628, 11.688464, -18.308298])))")
@@ -111,9 +114,9 @@ plt.scatter(petalLengths, sepalLengths, c: firstTrainLabels.array.scalars)
 plt.xlabel("Petal length")
 plt.ylabel("Sepal length")
 
-exit(0)
-
-plt.show()
+//exit(0)
+//
+//plt.show()
 
 
 let hiddenSize: Int = 10

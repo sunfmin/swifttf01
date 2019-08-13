@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="swifttf01" type="SwiftPackageManagerRunConfiguration" factoryName="Swift Package Run" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="swifttf01" TARGET_NAME="swifttf01" CONFIG_NAME="Swift Package Run" RUN_TARGET_PROJECT_NAME="swifttf01" RUN_TARGET_NAME="swifttf01" WAS_MODIFIED="">
+    <method v="2">
+      <option name="SPM.BUILD_TASK_PROVIDER" enabled="true" />
+    </method>
+  </configuration>
+</component>
