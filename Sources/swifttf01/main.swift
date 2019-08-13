@@ -2,14 +2,13 @@ import TensorFlow
 
 import Python
 
-//import Glibc
+// import Glibc
 
 // gradientRun()
 
 runVerySimpleModel()
 
 exit(0)
-
 
 struct Model: Differentiable {
     var w: Float
@@ -25,11 +24,11 @@ let m = Model(w: 500, b: 10, b2: 20)
 let (model1, input1) = m.gradient(at: -4.9) { model, input in
     model.run(to: input)
 }
+
 print(model1)
 print(input1)
 
 // exit(0)
-
 
 print("\(softmax(Tensor<Float>([17.457628, 11.688464, -18.308298])))")
 print("\(softmax(Tensor<Float>([1, 1, 1])))")
@@ -37,8 +36,7 @@ print("\(softmax(Tensor<Float>([1, 0, 0])))")
 print("\(softmax(Tensor<Float>([2, 10, -100])))")
 print("\(softmax(Tensor<Float>([1, -10])))")
 
-extension String: Error {
-}
+extension String: Error {}
 
 // throw "quit"
 
@@ -65,14 +63,12 @@ print(plt)
 
 let classNames = ["Iris setosa", "Iris versicolor", "Iris virginica"]
 
-
 let featureNames = ["sepal_length", "sepal_width", "petal_length", "petal_width"]
 let labelName = "species"
 let columnNames = featureNames + [labelName]
 
 print("Features: \(featureNames)")
 print("Label: \(labelName)")
-
 
 let batchSize = 32
 
@@ -85,10 +81,9 @@ struct IrisBatch {
     let labels: Tensor<Int32>
 }
 
-
 let trainDataset: Dataset<IrisBatch> = Dataset(
-        contentsOfCSVFile: "iris_training.csv", hasHeader: true,
-        featureColumns: [0, 1, 2, 3], labelColumns: [4]
+    contentsOfCSVFile: "iris_training.csv", hasHeader: true,
+    featureColumns: [0, 1, 2, 3], labelColumns: [4]
 ).batched(batchSize)
 
 let firstTrainExamples = trainDataset.first!
@@ -100,7 +95,6 @@ print("firstTrainLabels.array.scalars \(firstTrainLabels.array.scalars)")
 
 let firstTrainFeaturesTransposed = firstTrainFeatures.transposed()
 print("firstTrainFeaturesTransposed \(firstTrainFeaturesTransposed)")
-
 
 let petalLengths = firstTrainFeaturesTransposed[2].scalars
 let sepalLengths = firstTrainFeaturesTransposed[0].scalars
@@ -114,10 +108,9 @@ plt.scatter(petalLengths, sepalLengths, c: firstTrainLabels.array.scalars)
 plt.xlabel("Petal length")
 plt.ylabel("Sepal length")
 
-//exit(0)
+// exit(0)
 //
-//plt.show()
-
+// plt.show()
 
 let hiddenSize: Int = 10
 
@@ -133,11 +126,10 @@ struct IrisModel: Layer {
     }
 }
 
-
 var model = IrisModel()
 
 let firstTrainPredictions = model(firstTrainFeatures)
-print(softmax(firstTrainPredictions[0..<5]))
+print(softmax(firstTrainPredictions[0 ..< 5]))
 
 print("Prediction: \(firstTrainPredictions.argmax(squeezingAxis: 1))")
 print("    Labels: \(firstTrainLabels)")
@@ -152,6 +144,7 @@ let (loss, grads) = model.valueWithGradient { model -> Tensor<Float> in
     let logits = model(firstTrainFeatures)
     return softmaxCrossEntropy(logits: logits, labels: firstTrainLabels)
 }
+
 print("Current loss: \(loss)")
 
 optimizer.update(&model.allDifferentiableVariables, along: grads)
@@ -159,7 +152,6 @@ optimizer.update(&model.allDifferentiableVariables, along: grads)
 let logitsAfterOneStep = model(firstTrainFeatures)
 let lossAfterOneStep = softmaxCrossEntropy(logits: logitsAfterOneStep, labels: firstTrainLabels)
 print("Next loss: \(lossAfterOneStep)")
-
 
 let epochCount = 500
 var trainAccuracyResults: [Float] = []
@@ -169,7 +161,7 @@ func accuracy(predictions: Tensor<Int32>, truths: Tensor<Int32>) -> Float {
     return Tensor<Float>(predictions .== truths).mean().scalarized()
 }
 
-for epoch in 1...epochCount {
+for epoch in 1 ... epochCount {
     var epochLoss: Float = 0
     var epochAccuracy: Float = 0
     var batchCount: Int = 0
@@ -211,8 +203,8 @@ lossAxes.plot(trainLossResults)
 // plt.show()
 
 let testDataset: Dataset<IrisBatch> = Dataset(
-        contentsOfCSVFile: "iris_test.csv", hasHeader: true,
-        featureColumns: [0, 1, 2, 3], labelColumns: [4]
+    contentsOfCSVFile: "iris_test.csv", hasHeader: true,
+    featureColumns: [0, 1, 2, 3], labelColumns: [4]
 ).batched(batchSize)
 
 for testBatch in testDataset {
@@ -228,15 +220,14 @@ let firstTestBatchPredictions = firstTestBatchLogits.argmax(squeezingAxis: 1)
 print(firstTestBatchPredictions)
 print(firstTestBatch.labels)
 
-
 let unlabeledDataset: Tensor<Float> =
-        [[5.1, 3.3, 1.7, 0.5],
-         [5.9, 3.0, 4.2, 1.5],
-         [6.9, 3.1, 5.4, 2.1]]
+    [[5.1, 3.3, 1.7, 0.5],
+     [5.9, 3.0, 4.2, 1.5],
+     [6.9, 3.1, 5.4, 2.1]]
 
 let unlabeledDatasetPredictions = model(unlabeledDataset)
 
-for i in 0..<unlabeledDatasetPredictions.shape[0] {
+for i in 0 ..< unlabeledDatasetPredictions.shape[0] {
     let logits = unlabeledDatasetPredictions[i]
     let classIdx = logits.argmax().scalar!
     print("Example \(i) prediction: \(classNames[Int(classIdx)]) (\(softmax(logits))) (\(logits))")
